@@ -1,0 +1,10 @@
+.PHONY: build test clean
+
+build:
+	go build -o WhisperWave-BackEnd
+
+test:
+	go test ./...
+
+clean:
+	rm -f WhisperWave-BackEnd

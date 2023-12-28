@@ -1,0 +1,5 @@
+# neglect csv files (credential files)
+*.csv
+
+# neglect configs
+config/*
