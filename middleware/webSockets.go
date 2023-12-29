@@ -10,7 +10,9 @@ import (
 func WithServer(next http.Handler, server *models.Server) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, "server", server)
+		srvCtx := models.ServerContext{Key: "server"}
+
+		ctx = context.WithValue(ctx, srvCtx, server)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})

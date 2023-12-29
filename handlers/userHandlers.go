@@ -33,7 +33,7 @@ func CancelFriendRequestHandler() {
 // you can use channels
 func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 	// get server metadata from context
-	Server, ok := r.Context().Value("server").(*models.Server)
+	Server, ok := r.Context().Value(models.ServerContext{Key: "server"}).(*models.Server)
 	if !ok {
 		http.Error(w, "Server not found in context", http.StatusInternalServerError)
 		return
@@ -71,7 +71,7 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		Server.Mu.Lock()
 		Server.ConnPool[userId] =  conn
 		utils.SetServerForUser(userId, Server)
-		fmt.Print("registry ", userId, ":", utils.UserRegistry[userId].Addr)
+		fmt.Printf("registry %s : %s\n", userId, utils.UserRegistry[userId].Addr)
 		Server.Mu.Unlock()
 	}
 

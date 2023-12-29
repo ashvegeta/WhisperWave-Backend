@@ -11,9 +11,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func StartServer(chatServer *models.Server, wg *sync.WaitGroup) {
-	defer wg.Done()
+func InitServer(srvInfo map[string]interface{}) *models.Server {
+	var srv *models.Server = &models.Server{}
+	
+	var configMap map[string]string = map[string]string{
+		"Name" : srvInfo["SRV_NAME"].(string),
+		"Addr" : srvInfo["SRV_HOST"].(string) + ":" +srvInfo["SRV_PORT"].(string),
+		"ReadBufferSize" : srvInfo["SRV_BUFFER_READ_SIZE"].(string),
+		"WriteBufferSize" : srvInfo["SRV_BUFFER_WRITE_SIZE"].(string),
+		"ConnLimit" : srvInfo["SRV_CONN_LIMIT"].(string),
+		"MQHost" : srvInfo["MQ_HOST"].(string),
+		"MQPort" : srvInfo["MQ_PORT"].(string),
+	}
 
+	srv.SetupServer(configMap)
+	// fmt.Println(configMap)
+
+	return srv
+}
+
+func StartServer(chatServer *models.Server) {
 	// setup routers
 	r := mux.NewRouter()
 	routers.UserRouters(r, chatServer)
@@ -29,24 +46,26 @@ func StartServer(chatServer *models.Server, wg *sync.WaitGroup) {
 }
 
 func main() {
+	// initialize variables
 	var (
+		serversInfo []interface{} = utils.LoadSrvConfig()
 		wg sync.WaitGroup
-		srv1 *models.Server = &models.Server{}
-		srv2 *models.Server = &models.Server{}
 	)
-		
+	
 	// setup registry
 	utils.InitRegistry()
-	
-	// setup servers and their respective message queues
-	srv1.SetupServer("localhost:8080")
-	wg.Add(1)
-	go StartServer(srv1, &wg)
 
-	srv2.SetupServer("localhost:8081")
-	wg.Add(1)
-	go StartServer(srv2, &wg)
+	// initialize servers
+	for c, srvInfo := range serversInfo {
+		wg.Add(c + 1)
+		
+		go func(srvInfo interface{}) {
+			server := InitServer(srvInfo.(map[string]interface{}))
+			StartServer(server)
+			wg.Done()
+		}(srvInfo)
+	}
 
-	// wait for all the servers to start 
+	// wait for all the servers to initialize before ending 
 	wg.Wait()
 }

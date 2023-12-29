@@ -2,7 +2,9 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 
 // server metadata
 type Server struct {
+	Name string
 	Addr string
 	Mu	sync.Mutex
 	Upgrader websocket.Upgrader
@@ -22,7 +25,8 @@ type Server struct {
 }
 
 type MessageQueue struct {
-	MQAddr string //message queue address
+	MQHost string //message queue address
+	MQPort string 
 	Queue amqp.Queue
 	MQChannel *amqp.Channel
 }
@@ -32,18 +36,46 @@ type UserServerMap struct {
 	ServerID string `json:"server"`
 }
 
+// default server config values
+func (srv *Server) SetDefaultOps() {
+
+}
+
 // ------------ Server VARS ---------------- //
-func (srv *Server) SetupServer(Addr string, srvConfig ...interface{}) {
-	srv.Addr =  Addr
+func (srv *Server) SetupServer(srvConfig map[string]string) {
+	srv.Name = srvConfig["Name"]
+	srv.Addr =  srvConfig["Addr"]
+
+	R_SIZE, err := strconv.Atoi(srvConfig["ReadBufferSize"])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	W_SIZE, err := strconv.Atoi(srvConfig["WriteBufferSize"])
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	srv.Upgrader =  websocket.Upgrader{
-	ReadBufferSize: 1024,
-	WriteBufferSize: 1024,
+		ReadBufferSize: R_SIZE,
+		WriteBufferSize: W_SIZE,
 	}
 
 	srv.ConnPool =  make(map[string]*websocket.Conn)
 
-	srv.ConnLimit =  32
+	connLimit, err := strconv.Atoi(srvConfig["ConnLimit"]) 
+	if err != nil {
+		fmt.Println("Error in string to int conversion: ", err)
+		return
+	}
+	srv.ConnLimit = connLimit
+
+	// message queue
+	srv.MQ = &MessageQueue{}
+	srv.MQ.MQHost = srvConfig["MQHost"]
+	srv.MQ.MQPort = srvConfig["MQPort"]
 	
 	// Server.SetupMessageQueue()
 }
@@ -90,11 +122,9 @@ func (srv* Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 func (srv* Server) SetupMessageQueue() {
 	//host message queue as a service
 
-
 	// connect with server
-	addr := ""
-	srv.MQ.MQAddr = addr
-	
+	addr := fmt.Sprintf("%s:%s",srv.MQ.MQHost, srv.MQ.MQPort)
+
 	conn, err := amqp.Dial(addr); if err != nil {
 		log.Println(err)
 		return
