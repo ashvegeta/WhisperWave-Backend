@@ -111,7 +111,7 @@ func TestClient() {
 			}
 	
 			//print received message
-			fmt.Printf("\n%s : %s\n", recvMessage.SenderId , recvMessage.Content)
+			fmt.Printf("\n[%s] : %s\n", recvMessage.SenderId , recvMessage.Content)
 		}()
 
 		// send message
@@ -124,7 +124,7 @@ func TestClient() {
 			SenderId: senderId,
 			ReceiverId: receiverId,
 			Content: txtMsg,
-			MessageType: "text",
+			MessageType: "text/plain",
 			TimeStamp: time.Now(),
 		}
 	

@@ -14,18 +14,18 @@ import (
 func InitServer(srvInfo map[string]interface{}) *models.Server {
 	var srv *models.Server = &models.Server{}
 	
-	var configMap map[string]string = map[string]string{
-		"Name" : srvInfo["SRV_NAME"].(string),
+	var configMap map[string]any = map[string]any{
+		"Name" : srvInfo["SRV_NAME"],
 		"Addr" : srvInfo["SRV_HOST"].(string) + ":" +srvInfo["SRV_PORT"].(string),
-		"ReadBufferSize" : srvInfo["SRV_BUFFER_READ_SIZE"].(string),
-		"WriteBufferSize" : srvInfo["SRV_BUFFER_WRITE_SIZE"].(string),
-		"ConnLimit" : srvInfo["SRV_CONN_LIMIT"].(string),
-		"MQHost" : srvInfo["MQ_HOST"].(string),
-		"MQPort" : srvInfo["MQ_PORT"].(string),
+		"ReadBufferSize" : srvInfo["SRV_BUFFER_READ_SIZE"],
+		"WriteBufferSize" : srvInfo["SRV_BUFFER_WRITE_SIZE"],
+		"ConnLimit" : srvInfo["SRV_CONN_LIMIT"],
+		"MQName" : srvInfo["MQ_NAME"],
+		"MQURI" : srvInfo["MQ_URI"],
+		"MQParams" : srvInfo["MQ_PARAMS"],
 	}
 
 	srv.SetupServer(configMap)
-	// fmt.Println(configMap)
 
 	return srv
 }
@@ -41,6 +41,7 @@ func StartServer(chatServer *models.Server) {
 		Addr: chatServer.Addr,
 	}
 
+	// start server
 	fmt.Printf("listening at address: %s\n", httpsrv.Addr)
 	httpsrv.ListenAndServe()
 }
@@ -56,14 +57,23 @@ func main() {
 	utils.InitRegistry()
 
 	// initialize servers
-	for c, srvInfo := range serversInfo {
-		wg.Add(c + 1)
-		
+	for _, srvInfo := range serversInfo {
+		wg.Add(1)
+
 		go func(srvInfo interface{}) {
 			server := InitServer(srvInfo.(map[string]interface{}))
+			utils.RegisterServer(server)
+			
+			go func() {
+				server.ConsumeMessages()
+				wg.Done()
+			}()
+			
 			StartServer(server)
-			wg.Done()
+			// wg.Done()	
+			
 		}(srvInfo)
+
 	}
 
 	// wait for all the servers to initialize before ending 

@@ -71,7 +71,7 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		Server.Mu.Lock()
 		Server.ConnPool[userId] =  conn
 		utils.SetServerForUser(userId, Server)
-		fmt.Printf("registry %s : %s\n", userId, utils.UserRegistry[userId].Addr)
+		fmt.Println(utils.UserRegistry)
 		Server.Mu.Unlock()
 	}
 

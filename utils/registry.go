@@ -1,42 +1,41 @@
 package utils
 
 import (
-	"WhisperWave-BackEnd/models"
-	"log"
+	"errors"
+	"fmt"
 )
 
 // var serverRegistry map[string]*models.Server
-var UserRegistry map[string]*models.Server
+var UserRegistry map[string]any
 
 func InitRegistry() {
 	// serverRegistry = make(map[string]*models.Server)
-	UserRegistry = make(map[string]*models.Server)	
+	UserRegistry = make(map[string]any)	
 }
 
 //users
-func GetServerForUser(userId string) (*models.Server) {
+func GetServerForUser(userId string) (any, error) {
 	srvInfo, exists := UserRegistry[userId]
+	var err error = nil
 
 	if !exists {
-		log.Printf("user %s does not exist in user registry", userId)
+		msg := fmt.Sprintf("\nuser %s does not exist in user registry", userId)
+		err = errors.New(msg)
+		return nil, err
 	} 
 
-	return srvInfo
+	return srvInfo, err
 }
 
-func SetServerForUser(userId string, srv *models.Server) {
+func SetServerForUser(userId string, srv any) {
 	UserRegistry[userId] = srv
 }
 
 // servers
-func RegisterServer() {
+func RegisterServer(srv any) {
 
 }
 
-func DeRegisterServer() {
-
-}
-
-func GetServerMetaData() {
+func DeRegisterServer(srv any) {
 
 }

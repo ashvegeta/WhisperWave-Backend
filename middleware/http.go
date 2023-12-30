@@ -4,7 +4,7 @@ func Authenticator() {
 
 }
 
-func RequestValidator() {
+func FormatValidator() {
 
 }
 

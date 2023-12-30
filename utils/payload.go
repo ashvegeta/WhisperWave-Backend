@@ -1,28 +1,28 @@
 package utils
 
-import (
-	"WhisperWave-BackEnd/models"
-	"encoding/json"
-	"log"
-)
+// import (
+// 	"WhisperWave-BackEnd/models"
+// 	"encoding/json"
+// 	"log"
+// )
 
-func SerializeJSON(data models.Message) []byte {
-	serData, err := json.Marshal(data)
+// func SerializeJSON(data models.Message) []byte {
+// 	serData, err := json.Marshal(data)
 
-	if err != nil {
-		log.Println("Error serializing data:", serData)
-		log.Println(err)
-		return nil
-	}
+// 	if err != nil {
+// 		log.Println("Error serializing data:", serData)
+// 		log.Println(err)
+// 		return nil
+// 	}
 
-	return serData
-}
+// 	return serData
+// }
 
-func DeserializeJSON(encodedData []byte, pointerData *models.Message) {
-	err := json.Unmarshal(encodedData, pointerData)
+// func DeserializeJSON(encodedData []byte, pointerData *models.Message) {
+// 	err := json.Unmarshal(encodedData, pointerData)
 
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
+// 	if err != nil {
+// 		log.Println(err)
+// 		return
+// 	}
+//  }
