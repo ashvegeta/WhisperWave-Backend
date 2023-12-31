@@ -73,6 +73,8 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		utils.SetServerForUser(userId, Server)
 		fmt.Println(utils.UserRegistry)
 		Server.Mu.Unlock()
+	} else {
+		log.Printf("\nUser %s is already connected to the chat server", userId)
 	}
 
 	// read loop

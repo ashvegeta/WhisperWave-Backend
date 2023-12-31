@@ -84,35 +84,41 @@ func TestClient() {
 
 	if err != nil {
 		log.Println("Error Dialing to the websocket", u.Host, " : " ,err)
-
+		
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading response body:", err)
 			return
-		} 
+			} 
+			
+			// Print the response body as a string
+			fmt.Println(string(body))
+			return
+		}
+	
+	defer conn.Close()
 
-		// Print the response body as a string
-		fmt.Println(string(body))
-		return
-	}
+	//receive message (in a GO routine)
+	go func() {
+		var recvMessage models.Message
 
-	//Read Loop
-	for {
-		// input message
-		var sentMessage, recvMessage models.Message
-		var txtMsg string
-		
-		//receive message (in a GO routine)
-		go func() {
+		for {
 			err2 := conn.ReadJSON(&recvMessage)
 			if err2 != nil {
 				log.Println("Error in receiving message : ", err)
 				return
 			}
-	
+
 			//print received message
 			fmt.Printf("\n[%s] : %s\n", recvMessage.SenderId , recvMessage.Content)
-		}()
+		}
+	}()
+	
+	//Read Loop
+	for {
+		// input message
+		var sentMessage models.Message
+		var txtMsg string
 
 		// send message
 		fmt.Printf("You [%s]: ", senderId)
@@ -129,10 +135,10 @@ func TestClient() {
 		}
 	
 		mu.Lock()
-		err1 := conn.WriteJSON(sentMessage)
+		err := conn.WriteJSON(sentMessage)
 		mu.Unlock()
 
-		if err1 != nil {
+		if err != nil {
 			log.Println("Error in sending message : ", err)
 			return
 		}

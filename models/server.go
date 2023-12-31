@@ -63,14 +63,13 @@ func (srv *Server) SetupServer(srvConfig map[string]any) {
 	srv.GetQueue(srv.MQ)
 
 	// start consuming as soon as the server starts
-	// go srv.ReadMQLoop()
+	go srv.ConsumeMessages()
 }
 // -----------------------------------------//
 
 //Server read loop - Contains logic for handling user communication
 func (srv* Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator func(string) string) {
 	for {
-		fmt.Println("inside loop")
 		// read message from sender
 		var recvMessage Message 
 		err := conn.ReadJSON(&recvMessage)
@@ -90,9 +89,7 @@ func (srv* Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 		//get the receiver's userId
 		receiverId := recvMessage.ReceiverId
 
-		// check if the sender already has a connection with the server
-		// IMPORTANT: IN FUTURE MODIFY THE CODE, AS 2 END USERS MAY NOT CONNECT TO SAME CHAT SERVER
-		// Instead of connecting to the receiver, push it to message queue
+		// check if the receiver already has a connection with the server
 		recvConn, exists := srv.ConnPool[receiverId]
 
 		//if connection exists (i.e receiver connected to the same server), send it to intended receiver
@@ -102,7 +99,6 @@ func (srv* Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 				return
 			}
 		} else {
-			// fmt.Print(utils.GetServerForUser(receiverId))
 			targetSrv, err := utils.GetServerForUser(receiverId)
 			if err != nil {
 				log.Println(err)
@@ -117,8 +113,6 @@ func (srv* Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 
 // setup the message queue for the server
 func (srv* Server) GetQueue(targetMQ MessageQueue) *amqp.Channel {
-	//host message queue as a service
-
 	// connect with server
 	conn, err := amqp.Dial(targetMQ.MQURI); if err != nil {
 		log.Println(err)
@@ -194,35 +188,50 @@ func (srv *Server) SendMessage(message Message) {
 			return
 		} 
 	} /*handle disconnected users properly*/ else {
-		log.Printf("\nUser %s does nat have an active connection", receiverId)
+		log.Printf("\nUser %s does not have an active connection", receiverId)
 		return
 	}
 }
 
 // consume message from queue
 func (srv* Server) ConsumeMessages() {
+	ch := srv.GetQueue(srv.MQ)
+	var intermData Message
+	
+	msgs, err := ch.Consume(
+		srv.MQ.MQName, // queue
+		srv.Addr,        // consumer
+		true,      // auto-ack
+		false,     // exclusive
+		false,     // no-local
+		false,     // no-wait
+		nil,       // args
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
 	for	{	
+		// try to re-setablish connection with the MQ to start consuming messages (IN CASE ITS CLOSED)
+		if ch.IsClosed() || ch == nil {
+			ch = srv.GetQueue(srv.MQ)
 
-		ch := srv.GetQueue(srv.MQ)
-		
-		msgs, err := ch.Consume(
-			srv.MQ.MQName, // queue
-			"",        // consumer
-			true,      // auto-ack
-			false,     // exclusive
-			false,     // no-local
-			false,     // no-wait
-			nil,       // args
-		)
+			msgs, err = ch.Consume(
+				srv.MQ.MQName, // queue
+				srv.Addr,  // consumer
+				true,      // auto-ack
+				false,     // exclusive
+				false,     // no-local
+				false,     // no-wait
+				nil,       // args
+			)
 
-		// defer ch.Close()
-		
-		if err != nil {
-			panic(err)
+			if err != nil {
+				panic(err)
+			}
 		}
-		
-		var intermData Message
-
+			
 		for msg := range msgs {
 			json.Unmarshal(msg.Body, &intermData)
 			fmt.Printf("\n inside [%s] : %s", srv.Name, intermData)

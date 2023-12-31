@@ -11,6 +11,5 @@ import (
 
 func UserRouters(router *mux.Router, srv *models.Server) {
 	router.HandleFunc("/", handlers.DefaultHandler)
-	// router.HandleFunc("/ws", handlers.SingleUserChatHandler)
 	router.Handle("/ws", middleware.WithServer(http.HandlerFunc(handlers.SingleUserChatHandler), srv))
 }

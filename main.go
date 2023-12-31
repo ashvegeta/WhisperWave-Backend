@@ -63,15 +63,8 @@ func main() {
 		go func(srvInfo interface{}) {
 			server := InitServer(srvInfo.(map[string]interface{}))
 			utils.RegisterServer(server)
-			
-			go func() {
-				server.ConsumeMessages()
-				wg.Done()
-			}()
-			
 			StartServer(server)
-			// wg.Done()	
-			
+			wg.Done()	
 		}(srvInfo)
 
 	}

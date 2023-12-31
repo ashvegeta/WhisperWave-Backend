@@ -1,10 +1,12 @@
-.PHONY: build test clean
+.PHONY:	build test clean
 
 build:
-	go build -o WhisperWave-BackEnd
+	docker start rabbitmq-server1 && docker start rabbitmq-server2
+	go build -o src main.go
+	src/main.exe
 
 test:
 	go test ./...
 
 clean:
-	rm -f WhisperWave-BackEnd
+	rm -rf src
