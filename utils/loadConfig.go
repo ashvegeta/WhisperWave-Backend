@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// load the server configuration
 func LoadSrvConfig() []interface{} {
 	file, err := os.Open("./config/servers.json")
 	if err != nil {

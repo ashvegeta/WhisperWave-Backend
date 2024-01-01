@@ -32,3 +32,14 @@ type GroupMessage struct {
 	Content     string //convert into bit-representation in the future
 	TimeStamp   time.Time
 }
+
+type UserLoginCredentials struct {
+	UserName string	`json:"username"`
+	Password string	`json:"password"`
+}
+
+type UserSignupCredentials struct {
+	UserName string	`json:"username"`
+	Password string	`json:"password"`
+	Email string `json:"email"`
+}

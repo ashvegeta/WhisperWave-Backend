@@ -69,7 +69,7 @@ func TestClient() {
 	} else {
 		u = url.URL{
 			Scheme : "ws",
-			Host: "localhost:8081",
+			Host: "localhost:8080",
 			Path: "/ws",
 		}
 	}
@@ -110,7 +110,7 @@ func TestClient() {
 			}
 
 			//print received message
-			fmt.Printf("\n[%s] : %s\n", recvMessage.SenderId , recvMessage.Content)
+			fmt.Printf("\n[%s] : %s", recvMessage.SenderId , recvMessage.Content)
 		}
 	}()
 	

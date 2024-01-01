@@ -33,7 +33,7 @@ func InitServer(srvInfo map[string]interface{}) *models.Server {
 func StartServer(chatServer *models.Server) {
 	// setup routers
 	r := mux.NewRouter()
-	routers.UserRouters(r, chatServer)
+	routers.InitRouter(r, chatServer)
 
 	// setup http server
 	httpsrv := &http.Server{

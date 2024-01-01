@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func UserRouters(router *mux.Router, srv *models.Server) {
-	router.HandleFunc("/", handlers.DefaultHandler)
+func UserRouter(router *mux.Router, srv *models.Server) {
 	router.Handle("/ws", middleware.WithServer(http.HandlerFunc(handlers.SingleUserChatHandler), srv))
 }
