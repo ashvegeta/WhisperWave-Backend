@@ -13,16 +13,16 @@ import (
 
 func InitServer(srvInfo map[string]interface{}) *models.Server {
 	var srv *models.Server = &models.Server{}
-	
+
 	var configMap map[string]any = map[string]any{
-		"Name" : srvInfo["SRV_NAME"],
-		"Addr" : srvInfo["SRV_HOST"].(string) + ":" +srvInfo["SRV_PORT"].(string),
-		"ReadBufferSize" : srvInfo["SRV_BUFFER_READ_SIZE"],
-		"WriteBufferSize" : srvInfo["SRV_BUFFER_WRITE_SIZE"],
-		"ConnLimit" : srvInfo["SRV_CONN_LIMIT"],
-		"MQName" : srvInfo["MQ_NAME"],
-		"MQURI" : srvInfo["MQ_URI"],
-		"MQParams" : srvInfo["MQ_PARAMS"],
+		"Name":            srvInfo["SRV_NAME"],
+		"Addr":            srvInfo["SRV_HOST"].(string) + ":" + srvInfo["SRV_PORT"].(string),
+		"ReadBufferSize":  srvInfo["SRV_BUFFER_READ_SIZE"],
+		"WriteBufferSize": srvInfo["SRV_BUFFER_WRITE_SIZE"],
+		"ConnLimit":       srvInfo["SRV_CONN_LIMIT"],
+		"MQName":          srvInfo["MQ_NAME"],
+		"MQURI":           srvInfo["MQ_URI"],
+		"MQParams":        srvInfo["MQ_PARAMS"],
 	}
 
 	srv.SetupServer(configMap)
@@ -38,7 +38,7 @@ func StartServer(chatServer *models.Server) {
 	// setup http server
 	httpsrv := &http.Server{
 		Handler: r,
-		Addr: chatServer.Addr,
+		Addr:    chatServer.Addr,
 	}
 
 	// start server
@@ -49,14 +49,14 @@ func StartServer(chatServer *models.Server) {
 func main() {
 	// initialize variables
 	var (
-		serversInfo []interface{} = utils.LoadSrvConfig()
-		wg sync.WaitGroup
+		serversInfo []interface{} = utils.LoadConfig("./config/servers.json")
+		wg          sync.WaitGroup
 	)
-	
+
 	// setup registry
 	utils.InitRegistry()
 
-	// initialize servers
+	// initialize servers in a go routine
 	for _, srvInfo := range serversInfo {
 		wg.Add(1)
 
@@ -64,11 +64,11 @@ func main() {
 			server := InitServer(srvInfo.(map[string]interface{}))
 			utils.RegisterServer(server)
 			StartServer(server)
-			wg.Done()	
+			wg.Done()
 		}(srvInfo)
 
 	}
 
-	// wait for all the servers to initialize before ending 
+	// wait for all the servers to initialize before ending
 	wg.Wait()
 }

@@ -11,7 +11,9 @@ windows:
 	${shell IF NOT EXIST "${CURR_DIR}\src" mkdir "${CURR_DIR}\src"}
 	${shell IF NOT EXIST "${CURR_DIR}\src\log" mkdir "${CURR_DIR}\src\log"}
 	go build -o src/app.exe main.go
-	@echo  --------------- 3.starting servers -----------------
+	@echo  ------------ 3. Waiting for Message Queues to start --------------
+	@timeout 7
+	@echo  --------------- 4.starting servers -----------------
 	src/app.exe
 
 test:

@@ -7,9 +7,9 @@ import (
 	"os"
 )
 
-// load the server configuration
-func LoadSrvConfig() []interface{} {
-	file, err := os.Open("./config/servers.json")
+// General Function to load any config file as interface type
+func LoadConfig(path string) []interface{} {
+	file, err := os.Open(path)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return nil
@@ -24,16 +24,35 @@ func LoadSrvConfig() []interface{} {
 	}
 
 	// Create a variable to hold the unmarshalled data
-	var myData []interface{}
+	var config []interface{}
 
 	// Unmarshal the JSON data into the struct
-	err = json.Unmarshal(data, &myData)
+	err = json.Unmarshal(data, &config)
 	if err != nil {
 		fmt.Println("Error unmarshalling JSON:", err)
 		return nil
 	}
 
-	return myData
+	return config
+}
+
+// Load DB config file
+func LoadDBConfig(path string, dType any) (interface{}, error) {
+	// DB struct
+	var config interface{}
+
+	// open file
+	file, err := os.Open(path)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return config, err
+	}
+	defer file.Close()
+
+	// decode file contents into the data struct
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+	return config, err
 }
 
 func LoadCloudConfig() {

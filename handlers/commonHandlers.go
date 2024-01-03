@@ -69,3 +69,18 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(token))
 }
+
+// handler to check validity of token (ONLY MEANT FOR TESTING)
+func TokenHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("token")
+
+	err := utils.VerifyToken(token)
+
+	if err!=nil{
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("token is not valid"))
+		return
+	}
+
+	w.Write([]byte("token is valid"))
+}

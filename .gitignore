@@ -4,6 +4,7 @@
 # neglect configs
 config/*
 
-TODO.txt
-
+# commands
 commands.txt
+
+.VSCode*

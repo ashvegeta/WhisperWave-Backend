@@ -9,6 +9,7 @@ import (
 
 func InitRouter(router *mux.Router, srv *models.Server) {
 	// init common routers
+	router.HandleFunc("/check", handlers.TokenHandler).Methods("POST")
 	router.HandleFunc("/", handlers.DefaultHandler).Methods("GET")
 	router.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 	router.HandleFunc("/signup", handlers.SignupHandler).Methods("POST")
