@@ -17,8 +17,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//  ----------- CLIENT VARS ---------- //
-var(
+// ----------- CLIENT VARS ---------- //
+var (
 	mu sync.Mutex
 )
 
@@ -42,11 +42,11 @@ func TestClient() {
 
 		seed = int64(value)
 	}
-	
+
 	// Set Headers
 	header := http.Header{}
 	var receiverId, senderId string
-	
+
 	if seed == 1 {
 		senderId = RandomGenerator(1)
 		receiverId = RandomGenerator(2)
@@ -54,48 +54,48 @@ func TestClient() {
 		senderId = RandomGenerator(2)
 		receiverId = RandomGenerator(1)
 	}
-	
+
 	header.Set("X-User-ID", senderId)
-	
+
 	// set URL
 	var u url.URL
 
 	if seed == 1 {
 		u = url.URL{
-			Scheme : "ws",
-			Host: "localhost:8080",
-			Path: "/ws",
+			Scheme: "ws",
+			Host:   "localhost:8080",
+			Path:   "/ws",
 		}
 	} else {
 		u = url.URL{
-			Scheme : "ws",
-			Host: "localhost:8080",
-			Path: "/ws",
+			Scheme: "ws",
+			Host:   "localhost:8081",
+			Path:   "/ws",
 		}
 	}
 
 	// dial for a websocket connection
 	dialer := websocket.Dialer{
-		ReadBufferSize: 1024,
+		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
 
-	conn, resp , err := dialer.Dial(u.String(), header)
+	conn, resp, err := dialer.Dial(u.String(), header)
 
 	if err != nil {
-		log.Println("Error Dialing to the websocket", u.Host, " : " ,err)
-		
+		log.Println("Error Dialing to the websocket", u.Host, " : ", err)
+
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading response body:", err)
 			return
-			} 
-			
-			// Print the response body as a string
-			fmt.Println(string(body))
-			return
 		}
-	
+
+		// Print the response body as a string
+		fmt.Println(string(body))
+		return
+	}
+
 	defer conn.Close()
 
 	//receive message (in a GO routine)
@@ -110,10 +110,10 @@ func TestClient() {
 			}
 
 			//print received message
-			fmt.Printf("\n[%s] : %s", recvMessage.SenderId , recvMessage.Content)
+			fmt.Printf("\n[%s] : %s", recvMessage.SenderId, recvMessage.Content)
 		}
 	}()
-	
+
 	//Read Loop
 	for {
 		// input message
@@ -127,13 +127,13 @@ func TestClient() {
 		}
 
 		sentMessage = models.Message{
-			SenderId: senderId,
-			ReceiverId: receiverId,
-			Content: txtMsg,
+			SenderId:    senderId,
+			ReceiverIds: []string{receiverId},
+			Content:     txtMsg,
 			MessageType: "text/plain",
-			TimeStamp: time.Now(),
+			TimeStamp:   time.Now(),
 		}
-	
+
 		mu.Lock()
 		err := conn.WriteJSON(sentMessage)
 		mu.Unlock()

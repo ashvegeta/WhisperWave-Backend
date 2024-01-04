@@ -87,28 +87,28 @@ func (srv *Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 		// generate a unique message ID
 		recvMessage.MessageId = IDgenerator(recvMessage.SenderId)
 
-		//get the receiver's userId
-		receiverId := recvMessage.ReceiverId
+		for _, receiverId := range recvMessage.ReceiverIds {
+			// check if the receiver already has a connection with the server
+			recvConn, exists := srv.ConnPool[receiverId]
 
-		// check if the receiver already has a connection with the server
-		recvConn, exists := srv.ConnPool[receiverId]
+			//if connection exists (i.e receiver connected to the same server), send it to intended receiver
+			if exists {
+				if err := recvConn.WriteJSON(recvMessage); err != nil {
+					log.Println("Server send Error:", err)
+					return
+				}
+			} else {
+				targetSrv, err := utils.GetServerForUser(receiverId)
+				if err != nil {
+					log.Println(err)
+					return
+				}
 
-		//if connection exists (i.e receiver connected to the same server), send it to intended receiver
-		if exists {
-			if err := recvConn.WriteJSON(recvMessage); err != nil {
-				log.Println("Server send Error:", err)
-				return
+				var targetMQ MessageQueue = targetSrv.(*Server).MQ
+				srv.PublishMessage(targetMQ, recvMessage, recvMessage.MessageType)
 			}
-		} else {
-			targetSrv, err := utils.GetServerForUser(receiverId)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			var targetMQ MessageQueue = targetSrv.(*Server).MQ
-			srv.PublishMessage(targetMQ, recvMessage, recvMessage.MessageType)
 		}
+
 	}
 }
 
@@ -179,20 +179,20 @@ func (srv *Server) PublishMessage(targetMQ MessageQueue, message Message, mType 
 
 // send message to intended user
 func (srv *Server) SendMessage(message Message) {
-	receiverId := message.ReceiverId
+	for _, receiverId := range message.ReceiverIds {
+		// check if user is currently online/connected
+		conn, exists := srv.ConnPool[receiverId]
 
-	// check if user is currently online/connected
-	conn, exists := srv.ConnPool[receiverId]
-
-	// if the message recepient is connected to the current server, then forward the message
-	if exists {
-		if err := conn.WriteJSON(message); err != nil {
-			log.Println("Error in forwaring message to User : ", receiverId, err)
+		// if the message recepient is connected to the current server, then forward the message
+		if exists {
+			if err := conn.WriteJSON(message); err != nil {
+				log.Println("Error in forwaring message to User : ", receiverId, err)
+				return
+			}
+		} else /*handle disconnected users properly*/ {
+			log.Printf("\nUser %s does not have an active connection", receiverId)
 			return
 		}
-	} else /*handle disconnected users properly*/ {
-		log.Printf("\nUser %s does not have an active connection", receiverId)
-		return
 	}
 }
 
