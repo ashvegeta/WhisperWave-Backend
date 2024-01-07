@@ -6,4 +6,4 @@
 
 <h4>2. DataBase Design <h4>
   
-![Database Design Overview](https://i.imgur.com/F8T9U0r.png)
+![Database Design Overview](https://i.imgur.com/tDzaQdw.png)
