@@ -14,6 +14,11 @@ type DBConfig struct {
 	Tables []TableInfo `json:"Tables"`
 }
 
+type ChatParams struct {
+	PK string `dynamodbav:"ID"`
+	SK string `dynamodbav:"UserID-TimeStamp"`
+}
+
 type ChatHistory struct {
 	PK      string `dynamodbav:"ID"`
 	SK      string `dynamodbav:"UserID-TimeStamp"`
@@ -22,7 +27,6 @@ type ChatHistory struct {
 	Content string `dynamodbav:"Content"`
 }
 
-type LoadChatInput struct {
+type UserOrGroupParams struct {
 	PK string `dynamodbav:"ID"`
-	SK string `dynamodbav:"UserID-TimeStamp"`
 }

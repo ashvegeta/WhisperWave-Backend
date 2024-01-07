@@ -2,19 +2,22 @@ package models
 
 import "time"
 
+// NOTE: chat history for users and groups are stored differently in the DynamoDB, there is no
+// need to add chat history to "User" OR "Group" struct
 type User struct {
-	UserId      string               `json:"userId"`
-	UserName    string               `json:"userName"`
-	FriendsList []string             `json:"friendsList"`
-	GroupList   []string             `json:"groupList"`
-	ChatHistory map[string][]Message `json:"userChatHistory"`
+	UserId      string   `json:"userId" dynamodbav:"ID"`
+	UserName    string   `json:"userName" dynamodbav:"UserName"`
+	Password    string   `json:"password" dynamodbav:"Password"`
+	FriendsList []string `json:"friendsList" dynamodbav:"FriendsList"`
+	GroupList   []string `json:"groupList" dynamodbav:"GroupsList"`
+	// ChatHistory map[string][]Message `json:"userChatHistory" `
 }
 
 type Group struct {
-	GroupId     string    `json:"groupId"`
-	GroupName   string    `json:"groupName"`
-	UserList    []string  `json:"userList"`
-	ChatHistory []Message `json:"groupChatHistory"`
+	GroupId   string   `json:"groupId" dynamodbav:"ID"`
+	GroupName string   `json:"groupName" dynamodbav:"GroupName"`
+	UserList  []string `json:"userList" dynamodbav:"UserList"`
+	// ChatHistory []Message `json:"groupChatHistory"`
 }
 
 type Message struct {
@@ -27,11 +30,13 @@ type Message struct {
 	TimeStamp   time.Time `json:"timeStamp"`
 }
 
+// only use this to verify credentials, dont store directly
 type UserLoginCredentials struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`
 }
 
+// only use this to verify credentials, dont store directly
 type UserSignupCredentials struct {
 	UserName string `json:"username"`
 	Password string `json:"password"`

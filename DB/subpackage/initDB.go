@@ -3,6 +3,7 @@ package subpackage
 import (
 	"WhisperWave-BackEnd/models"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/smithy-go"
 )
 
 // Using the Config value, create the DynamoDB client
@@ -43,16 +45,10 @@ func InitializeTables(db_client *dynamodb.Client) {
 	for _, tableInfo := range dbConfig.Tables {
 		// Create table description
 		tableDesc := &dynamodb.CreateTableInput{
-			TableName: &tableInfo.TableName,
-
-			AttributeDefinitions: tableInfo.Attributes,
-
-			KeySchema: tableInfo.KeySchema,
-
-			ProvisionedThroughput: &types.ProvisionedThroughput{
-				ReadCapacityUnits:  tableInfo.ProvisionedThroughput.ReadCapacityUnits,
-				WriteCapacityUnits: tableInfo.ProvisionedThroughput.WriteCapacityUnits,
-			},
+			TableName:             &tableInfo.TableName,
+			AttributeDefinitions:  tableInfo.Attributes,
+			KeySchema:             tableInfo.KeySchema,
+			ProvisionedThroughput: &tableInfo.ProvisionedThroughput,
 		}
 
 		if len(tableInfo.GSI) > 0 {
@@ -60,14 +56,23 @@ func InitializeTables(db_client *dynamodb.Client) {
 		}
 
 		// create table
+		var OPerror *smithy.OperationError
 		table, err := CreateTable(db_client, tableDesc)
-		if err != nil {
+
+		if errors.As(err, &OPerror) && OPerror.OperationName == "CreateTable" {
+			log.Printf("table \"%s\" already exists .... skipping table creation\n", tableInfo.TableName)
+			continue
+		} else if err != nil {
 			log.Println(err)
 			return
+		} else {
+			log.Printf("table \"%s\" created successfully\n", tableInfo.TableName)
+			tables = append(tables, table)
 		}
 
-		tables = append(tables, table)
 	}
 
-	fmt.Print(tables)
+	if len(tables) > 0 {
+		fmt.Print(tables)
+	}
 }

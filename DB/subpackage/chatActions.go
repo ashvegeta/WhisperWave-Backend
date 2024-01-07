@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-func AddNewChat(db_client *dynamodb.Client, tableName string, chat models.ChatHistory) {
+func AddNewChat(db_client *dynamodb.Client, tableName string, chat models.ChatHistory) error {
 	av, err := attributevalue.MarshalMap(chat)
 	if err != nil {
 		panic(fmt.Sprintf("failed to DynamoDB marshal Record, %v", err))
@@ -22,12 +22,11 @@ func AddNewChat(db_client *dynamodb.Client, tableName string, chat models.ChatHi
 		TableName: aws.String(tableName),
 		Item:      av,
 	})
-	if err != nil {
-		panic(fmt.Sprintf("failed to put Record to DynamoDB, %v", err))
-	}
+
+	return err
 }
 
-func LoadChatHistory(db_client *dynamodb.Client, tableName string, chat models.LoadChatInput) ([]models.ChatHistory, error) {
+func LoadChatHistory(db_client *dynamodb.Client, tableName string, chat models.ChatParams) ([]models.ChatHistory, error) {
 	var (
 		err         error
 		response    *dynamodb.QueryOutput
@@ -65,6 +64,6 @@ func LoadChatHistory(db_client *dynamodb.Client, tableName string, chat models.L
 	return chatHistory, err
 }
 
-func DeleteChat() {
-
+func DeleteChat() error {
+	return fmt.Errorf("")
 }

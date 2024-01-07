@@ -35,7 +35,7 @@ func CreateTable(dbclient *dynamodb.Client, tableInfo *dynamodb.CreateTableInput
 	table, err := dbclient.CreateTable(context.TODO(), tableInfo)
 
 	if err != nil {
-		log.Printf("Couldn't create table %v. Here's why: %v\n", tableInfo.TableName, err)
+		return tableDesc, err
 	} else {
 		waiter := dynamodb.NewTableExistsWaiter(dbclient)
 

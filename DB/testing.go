@@ -22,9 +22,9 @@ func main() {
 	db_client := subpkg.GetDBClient(config)
 
 	// Initialize all the tables in DDB
-	// subpkg.InitializeTables(db_client)
+	subpkg.InitializeTables(db_client)
 
-	// add new chat
+	// 1. add new chat
 	subpkg.AddNewChat(db_client, "ChatHistory", models.ChatHistory{
 		PK:      "user1",
 		SK:      fmt.Sprintf("%s-%d", string("user4"), time.Now().UnixMicro()),
@@ -33,12 +33,36 @@ func main() {
 		Content: "hello, user, how are you ?",
 	})
 
+	// 2. add new user
+	subpkg.AddNewUser(db_client, "UserAndGroupInfo", models.User{
+		UserId:      "uid5",
+		UserName:    "user5",
+		Password:    "pwd",
+		FriendsList: []string{"user1", "user2", "user3"},
+		GroupList:   []string{"gid1", "gid2"},
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// 3. add new group
+	err = subpkg.AddNewGroup(db_client, "UserAndGroupInfo", models.Group{
+		GroupId:   "gid2",
+		GroupName: "group2",
+		UserList:  []string{"user1, user2, user3, user4"},
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	// Perform Queries
-	chatHistory, err := subpkg.LoadChatHistory(db_client, "ChatHistory", models.LoadChatInput{
+	// 1. Chat history
+	chatHistory, err := subpkg.LoadChatHistory(db_client, "ChatHistory", models.ChatParams{
 		PK: "user1",
 		SK: "user3",
 	})
-
 	if err != nil {
 		log.Println(err)
 		return
@@ -47,4 +71,16 @@ func main() {
 	for _, chat := range chatHistory {
 		fmt.Println(chat)
 	}
+
+	// 2. User Info
+	userInfo, err := subpkg.GetUserInfo(db_client, "UserAndGroupInfo", models.UserOrGroupParams{
+		PK: "uid3",
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Println(userInfo)
+
 }
