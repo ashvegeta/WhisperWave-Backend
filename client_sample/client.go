@@ -45,14 +45,18 @@ func TestClient() {
 
 	// Set Headers
 	header := http.Header{}
-	var receiverId, senderId string
+	var senderId string
+	var receiverIds []string
 
 	if seed == 1 {
 		senderId = RandomGenerator(1)
-		receiverId = RandomGenerator(2)
-	} else {
+		receiverIds = []string{RandomGenerator(2), RandomGenerator(3)}
+	} else if seed == 2 {
 		senderId = RandomGenerator(2)
-		receiverId = RandomGenerator(1)
+		receiverIds = []string{RandomGenerator(1), RandomGenerator(3)}
+	} else {
+		senderId = RandomGenerator(3)
+		receiverIds = []string{RandomGenerator(1), RandomGenerator(2)}
 	}
 
 	header.Set("X-User-ID", senderId)
@@ -63,7 +67,13 @@ func TestClient() {
 	if seed == 1 {
 		u = url.URL{
 			Scheme: "ws",
-			Host:   "localhost:8080",
+			Host:   "localhost:8081",
+			Path:   "/ws",
+		}
+	} else if seed == 2 {
+		u = url.URL{
+			Scheme: "ws",
+			Host:   "localhost:8081",
 			Path:   "/ws",
 		}
 	} else {
@@ -128,7 +138,7 @@ func TestClient() {
 
 		sentMessage = models.Message{
 			SenderId:    senderId,
-			ReceiverIds: []string{receiverId},
+			ReceiverIds: receiverIds,
 			Content:     txtMsg,
 			MessageType: "text/plain",
 			TimeStamp:   time.Now(),

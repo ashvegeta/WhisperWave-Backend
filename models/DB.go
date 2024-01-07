@@ -1,27 +1,28 @@
 package models
 
+import "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+
 type TableInfo struct {
-	TableName      string         `json:"tableName"`
-	AttributeDef   AttributeType  `json:"attrDef"`
-	KeySchema      KeySchema      `json:"keySchema"`
-	ProvThroughput ProvThroughput `json:"provThroughput"`
-}
-
-type AttributeType struct {
-	AttributeName string `json:"attrName"`
-	AttributeType string `json:"attrType"`
-}
-
-type KeySchema struct {
-	AttributeName string `json:"attrName"`
-	KeyType       string `json:"keyType"`
-}
-
-type ProvThroughput struct {
-	RCU int64 `json:"RCU"`
-	WCU int64 `json:"WCU"`
+	TableName             string
+	Attributes            []types.AttributeDefinition
+	KeySchema             []types.KeySchemaElement
+	ProvisionedThroughput types.ProvisionedThroughput
+	GSI                   []types.GlobalSecondaryIndex
 }
 
 type DBConfig struct {
-	Tables []TableInfo `json:"tables"`
+	Tables []TableInfo `json:"Tables"`
+}
+
+type ChatHistory struct {
+	PK      string `dynamodbav:"ID"`
+	SK      string `dynamodbav:"UserID-TimeStamp"`
+	MID     string `dynamodbav:"MessageID"`
+	MType   string `dynamodbav:"MessageType"`
+	Content string `dynamodbav:"Content"`
+}
+
+type LoadChatInput struct {
+	PK string `dynamodbav:"ID"`
+	SK string `dynamodbav:"UserID-TimeStamp"`
 }

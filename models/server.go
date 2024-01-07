@@ -98,17 +98,20 @@ func (srv *Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 					return
 				}
 			} else {
+				// Send Message to the users who are connected to other chat servers
 				targetSrv, err := utils.GetServerForUser(receiverId)
 				if err != nil {
 					log.Println(err)
 					return
 				}
 
+				copyMessage := recvMessage
+				copyMessage.ReceiverIds = []string{receiverId}
+
 				var targetMQ MessageQueue = targetSrv.(*Server).MQ
-				srv.PublishMessage(targetMQ, recvMessage, recvMessage.MessageType)
+				srv.PublishMessage(targetMQ, copyMessage, copyMessage.MessageType)
 			}
 		}
-
 	}
 }
 

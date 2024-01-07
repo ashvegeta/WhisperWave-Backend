@@ -23,7 +23,7 @@ func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SendFriendRequestHandler() {
-	
+
 }
 
 func CancelFriendRequestHandler() {
@@ -51,11 +51,11 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTooManyRequests)
 		w.Write([]byte("Error : Max Connection Limit Exceeded"))
 	}
-	
+
 	//upgrade the HTTP connnection to websocket (IF not done already)
 	var conn *websocket.Conn
 	conn, exists := Server.ConnPool[userId]
-	
+
 	if !exists {
 		var err error
 		conn, err = Server.Upgrader.Upgrade(w, r, nil)
@@ -66,10 +66,10 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		//safely defer the connection termination
 		defer conn.Close()
-		
+
 		//map the user to respective connection and make sure it synchronous
 		Server.Mu.Lock()
-		Server.ConnPool[userId] =  conn
+		Server.ConnPool[userId] = conn
 		utils.SetServerForUser(userId, Server)
 		fmt.Println(utils.UserRegistry)
 		Server.Mu.Unlock()
@@ -78,5 +78,5 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// read loop
-	Server.ReadLoop(conn, userId, utils.GenerateID)
+	Server.ReadLoop(conn, userId, utils.GenerateMessageID)
 }

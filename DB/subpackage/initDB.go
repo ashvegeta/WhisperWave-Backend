@@ -2,14 +2,12 @@ package subpackage
 
 import (
 	"WhisperWave-BackEnd/models"
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
@@ -20,13 +18,7 @@ func GetDBClient(cfg aws.Config) *dynamodb.Client {
 }
 
 // Initialize all the tables by loading schema
-func InitializeTables() {
-	// load AWS credentials config
-	config, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		log.Println(err)
-		return
-	}
+func InitializeTables(db_client *dynamodb.Client) {
 
 	// load dynamoDB config
 	var dbConfig models.DBConfig
@@ -47,31 +39,28 @@ func InitializeTables() {
 
 	// iterate over tables and create dynamoDB tables
 	var tables []*types.TableDescription
-	dbclient := GetDBClient(config)
 
 	for _, tableInfo := range dbConfig.Tables {
-		// extract table metadata
+		// Create table description
 		tableDesc := &dynamodb.CreateTableInput{
 			TableName: &tableInfo.TableName,
 
-			AttributeDefinitions: []types.AttributeDefinition{{
-				AttributeName: aws.String(tableInfo.AttributeDef.AttributeName),
-				AttributeType: types.ScalarAttributeType(tableInfo.AttributeDef.AttributeType),
-			}},
+			AttributeDefinitions: tableInfo.Attributes,
 
-			KeySchema: []types.KeySchemaElement{{
-				AttributeName: aws.String(tableInfo.KeySchema.AttributeName),
-				KeyType:       types.KeyType(tableInfo.KeySchema.KeyType),
-			}},
+			KeySchema: tableInfo.KeySchema,
 
 			ProvisionedThroughput: &types.ProvisionedThroughput{
-				ReadCapacityUnits:  &tableInfo.ProvThroughput.RCU,
-				WriteCapacityUnits: &tableInfo.ProvThroughput.WCU,
+				ReadCapacityUnits:  tableInfo.ProvisionedThroughput.ReadCapacityUnits,
+				WriteCapacityUnits: tableInfo.ProvisionedThroughput.WriteCapacityUnits,
 			},
 		}
 
+		if len(tableInfo.GSI) > 0 {
+			tableDesc.GlobalSecondaryIndexes = tableInfo.GSI
+		}
+
 		// create table
-		table, err := CreateTable(dbclient, tableDesc)
+		table, err := CreateTable(db_client, tableDesc)
 		if err != nil {
 			log.Println(err)
 			return

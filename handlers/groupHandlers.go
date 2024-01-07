@@ -6,14 +6,14 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var groupConnections map[string] *websocket.Conn
+var GroupConnections map[string]*websocket.Conn
 
 func SubscribeToGroupHandler() {
-	
+
 }
 
 func UnsubscribeFromGroupHandler() {
-	
+
 }
 
 func GroupChatHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func GroupChatHandler(w http.ResponseWriter, r *http.Request) {
 	// 	log.Println("Error Upgrading Websocket: ", err)
 	// 	return
 	// }
-	
+
 	// //safely deffering the connection termination
 	// defer conn.Close()
 
@@ -41,7 +41,7 @@ func GroupChatHandler(w http.ResponseWriter, r *http.Request) {
 
 	// for {
 	// 	// read message from sender
-	// 	var recvMessage models.Message 
+	// 	var recvMessage models.Message
 	// 	err := conn.ReadJSON(&recvMessage)
 
 	// 	// in case of error in connection string, remove it from the pool and return error

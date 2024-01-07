@@ -11,7 +11,7 @@ var (
 	counter   uint64
 )
 
-func GenerateID(requesterID string) string {
+func GenerateMessageID(requesterID string) string {
 	// increment counter
 	counterMu.Lock()
 	counter++
@@ -25,7 +25,3 @@ func GenerateID(requesterID string) string {
 
 	return ID
 }
-
-// func GenerateServerID() {
-
-// }
