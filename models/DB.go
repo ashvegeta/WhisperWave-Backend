@@ -1,6 +1,14 @@
 package models
 
-import "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+import (
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+)
+
+type TableStruct struct {
+	DBClient  *dynamodb.Client
+	TableName string
+}
 
 type TableInfo struct {
 	TableName             string
@@ -29,4 +37,15 @@ type ChatHistory struct {
 
 type UserOrGroupParams struct {
 	PK string `dynamodbav:"ID"`
+}
+
+type ServerInfo struct {
+	SrvName string
+	SrvAddr string
+	MQ      MessageQueue
+}
+
+type UserServerMap struct {
+	UserID     string     `dynamodbav:"UserID"`
+	ServerInfo ServerInfo `dynamodbav:"ServerInfo"`
 }

@@ -31,11 +31,6 @@ type MessageQueue struct {
 	MQParams []any  `json:"mq_params"`
 }
 
-type UserServerMap struct {
-	UserID   string `json:"user_id"`
-	ServerID string `json:"server"`
-}
-
 // default server config values
 func (srv *Server) SetDefaultOps() {
 
