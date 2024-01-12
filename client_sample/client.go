@@ -1,7 +1,7 @@
 package main
 
 import (
-	"WhisperWave-BackEnd/models"
+	"WhisperWave-BackEnd/src/models"
 	"bufio"
 	"fmt"
 	"io"

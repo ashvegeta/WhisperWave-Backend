@@ -5,20 +5,19 @@ CURR_DIR=$(shell cd)
 .PHONY: windows test clean
 
 windows:
-	@echo  ------------ 1.Setting up message queue ------------
-	docker start rabbitmq-server1 && docker start rabbitmq-server2
-	@echo  ------------ 2.Setting up build files --------------
-	${shell IF NOT EXIST "${CURR_DIR}\src" mkdir "${CURR_DIR}\src"}
-	${shell IF NOT EXIST "${CURR_DIR}\src\log" mkdir "${CURR_DIR}\src\log"}
-	go build -o src/app.exe main.go
-	@echo  ------------ 3. Waiting for Message Queues to start --------------
+	@echo 1.Setting up message queue ------------
+	@docker start rabbitmq-server1 && docker start rabbitmq-server2
+	@echo 2.Setting up build files --------------
+	${shell IF NOT EXIST "${CURR_DIR}\bin" mkdir "${CURR_DIR}\src"}
+	@go build -o bin/app.exe .
+	@echo 3. Waiting for Message Queues to start --------------
 	@timeout 7
-	@echo  --------------- 4.starting servers -----------------
-	src/app.exe
+	@echo 4.starting servers -----------------
+	@bin/app.exe
 
 test:
 	go test ./...
 
 clean:
-	rm -rf src
+	rm -rf bin
 

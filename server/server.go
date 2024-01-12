@@ -1,9 +1,8 @@
 package models
 
 import (
-	// "WhisperWave-BackEnd/utils"
-	"WhisperWave-BackEnd/models"
-	registry "WhisperWave-BackEnd/serviceRegistry"
+	"WhisperWave-BackEnd/src/models"
+	registry "WhisperWave-BackEnd/src/serviceRegistry"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -29,7 +28,14 @@ type Server struct {
 
 // default server config values
 func (srv *Server) SetDefaultOps() {
-
+	srv.Name = "chat-server"
+	srv.Addr = "localhost:8080"
+	srv.ConnLimit = 32
+	srv.MQ = models.MessageQueue{
+		MQName:   "MQ",
+		MQURI:    "localhost:5000",
+		MQParams: []any{true, false, false, false},
+	}
 }
 
 // ------------ Server VARS ---------------- //

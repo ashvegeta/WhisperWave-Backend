@@ -1,10 +1,10 @@
 package main
 
 import (
-	"WhisperWave-BackEnd/routers"
 	server "WhisperWave-BackEnd/server"
-	registry "WhisperWave-BackEnd/serviceRegistry"
-	"WhisperWave-BackEnd/utils"
+	"WhisperWave-BackEnd/src/routers"
+	registry "WhisperWave-BackEnd/src/serviceRegistry"
+	"WhisperWave-BackEnd/src/utils"
 	"fmt"
 	"net/http"
 	"sync"
