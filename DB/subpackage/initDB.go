@@ -2,6 +2,7 @@ package subpackage
 
 import (
 	"WhisperWave-BackEnd/models"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,10 +10,26 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/smithy-go"
 )
+
+type TableStruct struct {
+	DBClient  *dynamodb.Client
+	TableName string
+}
+
+func LoadDefaultConfig() *dynamodb.Client {
+	config, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+
+	return GetDBClient(config)
+}
 
 // Using the Config value, create the DynamoDB client
 func GetDBClient(cfg aws.Config) *dynamodb.Client {

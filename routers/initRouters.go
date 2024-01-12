@@ -2,12 +2,12 @@ package routers
 
 import (
 	"WhisperWave-BackEnd/handlers"
-	"WhisperWave-BackEnd/models"
+	server "WhisperWave-BackEnd/server"
 
 	"github.com/gorilla/mux"
 )
 
-func InitRouter(router *mux.Router, srv *models.Server) {
+func InitRouter(router *mux.Router, srv *server.Server) {
 	// init common routers
 	router.HandleFunc("/check", handlers.TokenHandler).Methods("POST")
 	router.HandleFunc("/", handlers.DefaultHandler).Methods("GET")
@@ -16,7 +16,4 @@ func InitRouter(router *mux.Router, srv *models.Server) {
 
 	// init user routers
 	UserRouter(router, srv)
-
-	// init group routers
-	GroupRouter(router, srv)
 }

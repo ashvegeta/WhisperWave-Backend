@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"WhisperWave-BackEnd/models"
+	server "WhisperWave-BackEnd/server"
+	registry "WhisperWave-BackEnd/serviceRegistry"
 	"WhisperWave-BackEnd/utils"
 	"fmt"
 	"log"
@@ -33,7 +35,7 @@ func CancelFriendRequestHandler() {
 // you can use channels
 func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 	// get server metadata from context
-	Server, ok := r.Context().Value(models.ServerContext{Key: "server"}).(*models.Server)
+	Server, ok := r.Context().Value(models.ServerContext{Key: "server"}).(*server.Server)
 	if !ok {
 		http.Error(w, "Server not found in context", http.StatusInternalServerError)
 		return
@@ -70,8 +72,12 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		//map the user to respective connection and make sure it synchronous
 		Server.Mu.Lock()
 		Server.ConnPool[userId] = conn
-		utils.SetServerForUser(userId, Server)
-		fmt.Println(utils.UserRegistry)
+		registry.SetServerForUser(userId, models.ServerInfo{
+			SrvName: Server.Name,
+			SrvAddr: Server.Addr,
+			MQ:      Server.MQ,
+		})
+		fmt.Println(registry.GetServerForUser(userId))
 		Server.Mu.Unlock()
 	} else {
 		log.Printf("\nUser %s is already connected to the chat server", userId)

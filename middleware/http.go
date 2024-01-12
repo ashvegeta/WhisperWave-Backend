@@ -1,14 +1,14 @@
 package middleware
 
 import (
-	"WhisperWave-BackEnd/models"
+	server "WhisperWave-BackEnd/server"
 	"WhisperWave-BackEnd/utils"
 	"fmt"
 	"net/http"
 )
 
 // middleware to check for authentication before accessing resources
-func CheckAuthenticated(next http.Handler, server *models.Server) http.Handler {
+func CheckAuthenticated(next http.Handler, server *server.Server) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authToken := r.Header.Get("Authorization")
 

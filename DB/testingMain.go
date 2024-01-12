@@ -3,22 +3,12 @@ package main
 import (
 	subpkg "WhisperWave-BackEnd/DB/subpackage"
 	test "WhisperWave-BackEnd/DB/testing"
-	"context"
 	"fmt"
-	"log"
-
-	"github.com/aws/aws-sdk-go-v2/config"
 )
 
 func main() {
 	// load AWS credentials config
-	config, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	db_client := subpkg.GetDBClient(config)
+	db_client := subpkg.LoadDefaultConfig()
 
 	// Initialize all the tables in DDB
 	subpkg.InitializeTables(db_client)

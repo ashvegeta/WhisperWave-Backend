@@ -13,11 +13,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var tableStruct *models.TableStruct
+var tableStructUSM *TableStruct
 
 // Initialize the DS for operations
 func InitServerMap(db_client *dynamodb.Client, tableName string) {
-	tableStruct = &models.TableStruct{
+	tableStructUSM = &TableStruct{
 		DBClient:  db_client,
 		TableName: tableName,
 	}
@@ -40,8 +40,8 @@ func GetServerMap(userID string) ([]models.UserServerMap, error) {
 
 	} else {
 		// Query
-		response, err = tableStruct.DBClient.Query(context.TODO(), &dynamodb.QueryInput{
-			TableName:                 aws.String(tableStruct.TableName),
+		response, err = tableStructUSM.DBClient.Query(context.TODO(), &dynamodb.QueryInput{
+			TableName:                 aws.String(tableStructUSM.TableName),
 			KeyConditionExpression:    expr.KeyCondition(),
 			ExpressionAttributeNames:  expr.Names(),
 			ExpressionAttributeValues: expr.Values(),
@@ -67,8 +67,8 @@ func PutServerMap(usrSrvMap models.UserServerMap) error {
 		return fmt.Errorf("failed to DynamoDB marshal Record, %v", err)
 	}
 
-	_, err = tableStruct.DBClient.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(tableStruct.TableName),
+	_, err = tableStructUSM.DBClient.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String(tableStructUSM.TableName),
 		Item:      av,
 	})
 
@@ -77,8 +77,8 @@ func PutServerMap(usrSrvMap models.UserServerMap) error {
 
 // Delete the websocket connection map
 func DeleteServerMap(userID string) error {
-	_, err := tableStruct.DBClient.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
-		TableName: aws.String(tableStruct.TableName),
+	_, err := tableStructUSM.DBClient.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
+		TableName: aws.String(tableStructUSM.TableName),
 		Key:       map[string]types.AttributeValue{"UserID": &types.AttributeValueMemberS{Value: userID}},
 	})
 	if err != nil {

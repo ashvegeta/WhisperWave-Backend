@@ -1,8 +1,9 @@
 package main
 
 import (
-	"WhisperWave-BackEnd/models"
 	"WhisperWave-BackEnd/routers"
+	server "WhisperWave-BackEnd/server"
+	registry "WhisperWave-BackEnd/serviceRegistry"
 	"WhisperWave-BackEnd/utils"
 	"fmt"
 	"net/http"
@@ -11,8 +12,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func InitServer(srvInfo map[string]interface{}) *models.Server {
-	var srv *models.Server = &models.Server{}
+func InitServer(srvInfo map[string]interface{}) *server.Server {
+	var srv *server.Server = &server.Server{}
 
 	var configMap map[string]any = map[string]any{
 		"Name":            srvInfo["SRV_NAME"],
@@ -30,7 +31,7 @@ func InitServer(srvInfo map[string]interface{}) *models.Server {
 	return srv
 }
 
-func StartServer(chatServer *models.Server) {
+func StartServer(chatServer *server.Server) {
 	// setup routers
 	r := mux.NewRouter()
 	routers.InitRouter(r, chatServer)
@@ -54,7 +55,7 @@ func main() {
 	)
 
 	// setup registry
-	utils.InitRegistry()
+	registry.InitRegistry()
 
 	// initialize servers in a go routine
 	for _, srvInfo := range serversInfo {
@@ -62,7 +63,6 @@ func main() {
 
 		go func(srvInfo interface{}) {
 			server := InitServer(srvInfo.(map[string]interface{}))
-			utils.RegisterServer(server)
 			StartServer(server)
 			wg.Done()
 		}(srvInfo)

@@ -14,11 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var tableStructCH *models.TableStruct
+var tableStructCH *TableStruct
 
 // Initialize the DS for operations
 func InitChatHistory(db_client *dynamodb.Client, tableName string) {
-	tableStructCH = &models.TableStruct{
+	tableStructCH = &TableStruct{
 		DBClient:  db_client,
 		TableName: tableName,
 	}

@@ -14,11 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var tableStructUGA *models.TableStruct
+var tableStructUGA *TableStruct
 
 // Initialize the DS for operations
 func InitUserAndGroupActions(db_client *dynamodb.Client, tableName string) {
-	tableStructUGA = &models.TableStruct{
+	tableStructUGA = &TableStruct{
 		DBClient:  db_client,
 		TableName: tableName,
 	}
