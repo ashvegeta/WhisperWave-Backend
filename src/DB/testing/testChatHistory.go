@@ -1,8 +1,8 @@
 package testing
 
 import (
-	subpkg "WhisperWave-BackEnd/DB/actionspkg"
-	"WhisperWave-BackEnd/models"
+	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	"WhisperWave-BackEnd/src/models"
 	"fmt"
 	"log"
 	"time"
@@ -14,9 +14,11 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	// Init
 	subpkg.InitChatHistory(db_client, tableName)
 
-	// 1. add new chat
+	// 1. add new user chat
 	uid1 := "uid1"
 	uid2 := fmt.Sprintf("%s-%d", string("uid2"), time.Now().UnixMicro())
+	gid1 := "gid1"
+
 	err := subpkg.AddNewChat(models.ChatHistory{
 		PK:      uid1,
 		SK:      uid2,
@@ -31,10 +33,24 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 		log.Printf("Successfully inserted chat for user: %s\n", uid1)
 	}
 
+	// add new group chat
+	err = subpkg.AddNewChat(models.ChatHistory{
+		PK:      gid1,
+		SK:      uid2,
+		MID:     "mID1",
+		MType:   "text/plain",
+		Content: "hello, user, how are you ?",
+	})
+	if err != nil {
+		log.Println(err)
+	} else {
+		log.Printf("Successfully inserted chat for group: %s\n", gid1)
+	}
+
 	// 2. load chat history
 	chatHistory, err := subpkg.LoadChatHistory(models.ChatParams{
 		PK: uid1,
-		SK: uid2,
+		// SK: uid2,
 	})
 	if err != nil {
 		log.Println(err)
@@ -58,7 +74,7 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 4. Delete a particular chat
-	err = subpkg.DeleteChat(models.ChatParams{
+	err = subpkg.DeleteSingleChat(models.ChatParams{
 		PK: uid1,
 		SK: uid2,
 	})
@@ -68,4 +84,15 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	} else {
 		log.Printf("Successfully deleted chat b/w user: %s and user: %s\n", uid1, uid2)
 	}
+
+	// // 5. delete user's group chat
+	// err = subpkg.DeleteUserGroupChat(models.ChatParams{
+	// 	PK: "uid2",
+	// })
+	// if err != nil {
+	// 	log.Println(err)
+
+	// } else {
+	// 	log.Printf("Successfully deleted user: %s,  group %s chat\n", uid2, gid1)
+	// }
 }

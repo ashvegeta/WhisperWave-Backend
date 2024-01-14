@@ -8,15 +8,15 @@ type User struct {
 	UserId      string   `json:"userId" dynamodbav:"ID"`
 	UserName    string   `json:"userName" dynamodbav:"UserName"`
 	Password    string   `json:"password" dynamodbav:"Password"`
-	FriendsList []string `json:"friendsList" dynamodbav:"FriendsList"`
-	GroupList   []string `json:"groupList" dynamodbav:"GroupsList"`
+	FriendsList []string `json:"friendsList" dynamodbav:"FriendsList,stringset"`
+	GroupList   []string `json:"groupList" dynamodbav:"GroupsList,stringset"`
 	// ChatHistory map[string][]Message `json:"userChatHistory" `
 }
 
 type Group struct {
 	GroupId   string   `json:"groupId" dynamodbav:"ID"`
 	GroupName string   `json:"groupName" dynamodbav:"GroupName"`
-	UserList  []string `json:"userList" dynamodbav:"UserList"`
+	UserList  []string `json:"userList" dynamodbav:"UserList,stringset"`
 	// ChatHistory []Message `json:"groupChatHistory"`
 }
 

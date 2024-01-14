@@ -42,7 +42,7 @@ func InitializeTables(db_client *dynamodb.Client) {
 	// load dynamoDB config
 	var dbConfig models.DBConfig
 
-	file, err := os.Open("../config/db.json")
+	file, err := os.Open("./config/db.json")
 	if err != nil {
 		log.Println("Error opening file:", err)
 		return
@@ -92,4 +92,9 @@ func InitializeTables(db_client *dynamodb.Client) {
 	if len(tables) > 0 {
 		fmt.Print(tables)
 	}
+
+	// Init Table Structs
+	InitChatHistory(db_client, "ChatHistory")
+	InitUserAndGroupActions(db_client, "UserAndGroupInfo")
+	InitUserServerMap(db_client, "UserServerMap")
 }

@@ -73,7 +73,7 @@ func TestClient() {
 	} else if seed == 2 {
 		u = url.URL{
 			Scheme: "ws",
-			Host:   "localhost:8081",
+			Host:   "localhost:8080",
 			Path:   "/ws",
 		}
 	} else {

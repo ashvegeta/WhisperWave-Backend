@@ -16,7 +16,7 @@ import (
 var tableStructUSM *TableStruct
 
 // Initialize the DS for operations
-func InitServerMap(db_client *dynamodb.Client, tableName string) {
+func InitUserServerMap(db_client *dynamodb.Client, tableName string) {
 	tableStructUSM = &TableStruct{
 		DBClient:  db_client,
 		TableName: tableName,

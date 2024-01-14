@@ -48,8 +48,10 @@ func LoadChatHistory(chat models.ChatParams) ([]models.ChatHistory, error) {
 	)
 
 	// Build Key Expression
-	keyEx := expression.Key("ID").Equal(expression.Value(chat.PK)).
-		And(expression.Key("UserID-TimeStamp").BeginsWith(chat.SK))
+	keyEx := expression.Key("ID").Equal(expression.Value(chat.PK))
+	if chat.SK != "" {
+		keyEx = keyEx.And(expression.Key("UserID-TimeStamp").BeginsWith(chat.SK))
+	}
 
 	expr, err := expression.NewBuilder().WithKeyCondition(keyEx).Build()
 
@@ -121,16 +123,40 @@ func UpdateChat(chat models.ChatParams, item models.ChatHistory) (interface{}, e
 }
 
 // Delete chat history
-func DeleteChat(chat models.ChatParams) error {
-	_, err := tableStructCH.DBClient.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
+func DeleteSingleChat(chat models.ChatParams) error {
+	// set delete input
+	deleteInput := &dynamodb.DeleteItemInput{
 		TableName: aws.String(tableStructCH.TableName),
 		Key: map[string]types.AttributeValue{
 			"ID":               &types.AttributeValueMemberS{Value: chat.PK},
 			"UserID-TimeStamp": &types.AttributeValueMemberS{Value: chat.SK},
 		},
-	})
-	if err != nil {
-		log.Printf("Couldn't delete the chat involving user : %v from the table. Here's why: %v\n", chat.PK, err)
 	}
-	return err
+
+	// perform delete operation
+	_, err := tableStructCH.DBClient.DeleteItem(context.TODO(), deleteInput)
+	if err != nil {
+		return fmt.Errorf("couldn't delete the chat involving user : %v from the table. Here's why: %v", chat.PK, err)
+	}
+	return nil
+}
+
+// Delete user's group chat (INCOMPLETE)
+func DeleteUserGroupChat(chat models.ChatParams) error {
+	user, err := GetUserInfo(models.UserOrGroupParams{PK: chat.PK})
+	if err != nil {
+		return fmt.Errorf("error in fetching user info : %s", chat.PK)
+	}
+
+	for _, gid := range user.GroupList {
+		err := DeleteSingleChat(models.ChatParams{
+			PK: gid,
+			SK: user.UserId,
+		})
+		if err != nil {
+			return fmt.Errorf("error in deleting user : %s, group : %s chat", user.UserId, gid)
+		}
+	}
+
+	return nil
 }

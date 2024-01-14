@@ -2,8 +2,8 @@ package main
 
 import (
 	server "WhisperWave-BackEnd/server"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/routers"
-	registry "WhisperWave-BackEnd/src/serviceRegistry"
 	"WhisperWave-BackEnd/src/utils"
 	"fmt"
 	"net/http"
@@ -54,8 +54,8 @@ func main() {
 		wg          sync.WaitGroup
 	)
 
-	// setup registry
-	registry.InitRegistry()
+	// Initialize DDB tables
+	actionspkg.InitializeTables(actionspkg.LoadDefaultConfig())
 
 	// initialize servers in a go routine
 	for _, srvInfo := range serversInfo {

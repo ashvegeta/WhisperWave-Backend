@@ -8,10 +8,6 @@ import (
 	"log"
 )
 
-func InitRegistry() {
-	subpkg.InitServerMap(subpkg.LoadDefaultConfig(), "UserServerMap")
-}
-
 // users
 func GetServerForUser(userId string) (any, error) {
 	srvInfo, err := subpkg.GetServerMap(userId)

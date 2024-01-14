@@ -1,12 +1,15 @@
 package models
 
 import (
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	registry "WhisperWave-BackEnd/src/serviceRegistry"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -64,6 +67,36 @@ func (srv *Server) SetupServer(srvConfig map[string]any) {
 }
 
 // -----------------------------------------//
+
+func (srv *Server) LoadChatHistory(userId string) []models.Message {
+	var messages []models.Message
+
+	chatHistory, err := actionspkg.LoadChatHistory(models.ChatParams{PK: userId})
+	if err != nil {
+		log.Println(err)
+	}
+
+	for _, chat := range chatHistory {
+		// Parse string to int64
+		SK := strings.Split(chat.SK, "-")
+		microsecondsInt, err := strconv.ParseInt(SK[1], 10, 64)
+		if err != nil {
+			fmt.Println("Error parsing string:", err)
+			continue
+		}
+
+		messages = append(messages, models.Message{
+			MessageId:   chat.MID,
+			SenderId:    SK[0],
+			ReceiverIds: []string{chat.PK},
+			MessageType: chat.MType,
+			Content:     chat.Content,
+			TimeStamp:   time.UnixMicro(microsecondsInt),
+		})
+	}
+
+	return messages
+}
 
 // Server read loop - Contains logic for handling user communication
 func (srv *Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator func(string) string) {

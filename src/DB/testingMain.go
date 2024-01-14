@@ -1,8 +1,8 @@
 package main
 
 import (
-	subpkg "WhisperWave-BackEnd/DB/actionspkg"
-	test "WhisperWave-BackEnd/DB/testing"
+	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	test "WhisperWave-BackEnd/src/DB/testing"
 	"fmt"
 )
 
@@ -12,6 +12,10 @@ func main() {
 
 	// Initialize all the tables in DDB
 	subpkg.InitializeTables(db_client)
+
+	subpkg.InitChatHistory(db_client, "ChatHistory")
+	subpkg.InitUserAndGroupActions(db_client, "UserAndGroupInfo")
+	subpkg.InitUserServerMap(db_client, "UserServerMap")
 
 	// Test tables
 	fmt.Println("\n1. Testing \"UserServerMap\" Table .......")

@@ -1,8 +1,8 @@
 package testing
 
 import (
-	subpkg "WhisperWave-BackEnd/DB/actionspkg"
-	"WhisperWave-BackEnd/models"
+	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	"WhisperWave-BackEnd/src/models"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -10,7 +10,7 @@ import (
 
 func TestServerMap(db_client *dynamodb.Client, tableName string) {
 	// Init
-	subpkg.InitServerMap(db_client, tableName)
+	subpkg.InitUserServerMap(db_client, tableName)
 
 	// Call Actions
 	uid := "uid1"
