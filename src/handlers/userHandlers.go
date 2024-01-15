@@ -32,6 +32,11 @@ func CancelFriendRequestHandler() {
 
 }
 
+// load  chat user
+func LoadChatHistoryHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
 // you can use channels
 func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 	// get server metadata from context
@@ -81,6 +86,13 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		Server.Mu.Unlock()
 	} else {
 		log.Printf("\nUser %s is already connected to the chat server", userId)
+	}
+
+	// load chat history
+	chatHistory := Server.LoadChatHistory(userId)
+
+	for _, chat := range chatHistory {
+		conn.WriteJSON(chat)
 	}
 
 	// read loop

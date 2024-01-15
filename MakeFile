@@ -10,7 +10,7 @@ Windows_NT:
 	${shell IF NOT EXIST "${CURR_DIR}\bin" mkdir "${CURR_DIR}\src"}
 	make $(OS)-build
 	@echo -------- 3. Waiting for Message Queues to start --------------
-	@timeout 6
+	@timeout 7
 	@echo -------- 4.starting servers -----------------
 	make $(OS)-run
 

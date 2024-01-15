@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -68,30 +67,25 @@ func (srv *Server) SetupServer(srvConfig map[string]any) {
 
 // -----------------------------------------//
 
-func (srv *Server) LoadChatHistory(userId string) []models.Message {
-	var messages []models.Message
-
-	chatHistory, err := actionspkg.LoadChatHistory(models.ChatParams{PK: userId})
+// Function to Load the stored chat history for a user or a group
+func (srv *Server) LoadChatHistory(Id string) []models.Message {
+	chatHistory, err := actionspkg.LoadChatHistory(models.ChatParams{PK: Id})
 	if err != nil {
 		log.Println(err)
 	}
 
+	var messages []models.Message
+
 	for _, chat := range chatHistory {
-		// Parse string to int64
 		SK := strings.Split(chat.SK, "-")
-		microsecondsInt, err := strconv.ParseInt(SK[1], 10, 64)
-		if err != nil {
-			fmt.Println("Error parsing string:", err)
-			continue
-		}
 
 		messages = append(messages, models.Message{
 			MessageId:   chat.MID,
-			SenderId:    SK[0],
-			ReceiverIds: []string{chat.PK},
+			SenderId:    chat.PK,
+			ReceiverIds: []string{SK[0]},
 			MessageType: chat.MType,
 			Content:     chat.Content,
-			TimeStamp:   time.UnixMicro(microsecondsInt),
+			TimeStamp:   SK[1],
 		})
 	}
 
@@ -116,6 +110,28 @@ func (srv *Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 
 		// generate a unique message ID
 		recvMessage.MessageId = IDgenerator(recvMessage.SenderId)
+
+		// Store Message to DB (concurrent operation)
+		go func() {
+			if recvMessage.Content == "" {
+				return
+			}
+
+			for _, recvId := range recvMessage.ReceiverIds {
+				actionspkg.AddNewChat(models.ChatHistory{
+					PK:      recvMessage.SenderId,
+					SK:      fmt.Sprintf("%s-%s", recvId, recvMessage.TimeStamp),
+					MID:     recvMessage.MessageId,
+					MType:   recvMessage.MessageType,
+					Content: recvMessage.Content,
+				})
+			}
+		}()
+
+		// Send Message to recepient
+		if recvMessage.Content == "" {
+			continue
+		}
 
 		for _, receiverId := range recvMessage.ReceiverIds {
 			// check if the receiver already has a connection with the server

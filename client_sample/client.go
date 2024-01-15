@@ -47,6 +47,7 @@ func TestClient() {
 	header := http.Header{}
 	var senderId string
 	var receiverIds []string
+	var gid string = RandomGenerator(4)
 
 	if seed == 1 {
 		senderId = RandomGenerator(1)
@@ -141,7 +142,8 @@ func TestClient() {
 			ReceiverIds: receiverIds,
 			Content:     txtMsg,
 			MessageType: "text/plain",
-			TimeStamp:   time.Now(),
+			GroupId:     gid,
+			TimeStamp:   fmt.Sprintf("%d", time.Now().UnixMicro()),
 		}
 
 		mu.Lock()
