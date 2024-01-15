@@ -7,7 +7,8 @@ Windows_NT:
 	@echo -------- 1.Setting up message queue ------------
 	@docker start rabbitmq-server1 && docker start rabbitmq-server2
 	@echo -------- 2.Setting up build files --------------
-	${shell IF NOT EXIST "${CURR_DIR}\bin" mkdir "${CURR_DIR}\src"}
+	${shell IF NOT EXIST "${CURR_DIR}\bin" mkdir "${CURR_DIR}\bin"}
+	${shell IF NOT EXIST "${CURR_DIR}\bin\app" mkdir "${CURR_DIR}\bin\app"}
 	make $(OS)-build
 	@echo -------- 3. Waiting for Message Queues to start --------------
 	@timeout 7
@@ -18,16 +19,16 @@ linux:
 	@echo linux
 
 linux-build:
-	go build -o bin/app cmd/app/main.go
+	go build -o bin/app/app cmd/app/main.go
 
 linux-run:
 	./bin/app
 
 Windows_NT-build:
-	go build -o bin/app.exe cmd/app/main.go
+	go build -o bin/app/app.exe cmd/app/main.go
 
 Windows_NT-run:
-	bin/app.exe 
+	bin/app/app.exe 
 
 test:
 	go test ./...
