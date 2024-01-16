@@ -1,7 +1,7 @@
 package testing
 
 import (
-	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	"log"
 
@@ -10,12 +10,12 @@ import (
 
 func TestServerMap(db_client *dynamodb.Client, tableName string) {
 	// Init
-	subpkg.InitUserServerMap(db_client, tableName)
+	actionspkg.InitUserServerMap(db_client, tableName)
 
 	// Call Actions
 	uid := "uid1"
 	// put
-	err := subpkg.PutServerMap(models.UserServerMap{
+	err := actionspkg.PutServerMap(models.UserServerMap{
 		UserID: uid,
 		ServerInfo: models.ServerInfo{
 			SrvName: "server1",
@@ -34,8 +34,8 @@ func TestServerMap(db_client *dynamodb.Client, tableName string) {
 		log.Printf("Successfully inserted user : %s\n", uid)
 	}
 
-	// // get
-	items, err := subpkg.GetServerMap(uid)
+	// get
+	items, err := actionspkg.GetServerMap(uid)
 	if err != nil {
 		log.Println(err)
 		return
@@ -45,7 +45,7 @@ func TestServerMap(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// delete
-	err = subpkg.DeleteServerMap(uid)
+	err = actionspkg.DeleteServerMap(uid)
 	if err != nil {
 		log.Println(err)
 		return

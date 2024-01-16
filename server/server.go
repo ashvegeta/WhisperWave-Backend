@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 	"sync"
 	"time"
 
@@ -68,29 +67,29 @@ func (srv *Server) SetupServer(srvConfig map[string]any) {
 // -----------------------------------------//
 
 // Function to Load the stored chat history for a user or a group
-func (srv *Server) LoadChatHistory(Id string) []models.Message {
-	chatHistory, err := actionspkg.LoadChatHistory(models.ChatParams{PK: Id})
-	if err != nil {
-		log.Println(err)
-	}
+// func (srv *Server) LoadChatHistory(Id string) []models.Message {
+// 	chatHistory, err := actionspkg.LoadChatHistory(models.ChatParams{PK: Id})
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
 
-	var messages []models.Message
+// 	var messages []models.Message
 
-	for _, chat := range chatHistory {
-		SK := strings.Split(chat.SK, "-")
+// 	for _, chat := range chatHistory {
+// 		SK := strings.Split(chat.SK, "-")
 
-		messages = append(messages, models.Message{
-			MessageId:   chat.MID,
-			SenderId:    chat.PK,
-			ReceiverIds: []string{SK[0]},
-			MessageType: chat.MType,
-			Content:     chat.Content,
-			TimeStamp:   SK[1],
-		})
-	}
+// 		messages = append(messages, models.Message{
+// 			MessageId:   chat.MID,
+// 			SenderId:    chat.PK,
+// 			ReceiverIds: []string{SK[0]},
+// 			MessageType: chat.MType,
+// 			Content:     chat.Content,
+// 			TimeStamp:   SK[1],
+// 		})
+// 	}
 
-	return messages
-}
+// 	return messages
+// }
 
 // Server read loop - Contains logic for handling user communication
 func (srv *Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator func(string) string) {
@@ -128,11 +127,11 @@ func (srv *Server) ReadLoop(conn *websocket.Conn, userId string, IDgenerator fun
 			}
 		}()
 
-		// Send Message to recepient
 		if recvMessage.Content == "" {
 			continue
 		}
 
+		// Send Message to recepient
 		for _, receiverId := range recvMessage.ReceiverIds {
 			// check if the receiver already has a connection with the server
 			recvConn, exists := srv.ConnPool[receiverId]

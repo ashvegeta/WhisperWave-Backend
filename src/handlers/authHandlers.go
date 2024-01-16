@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	"WhisperWave-BackEnd/src/utils"
 	"encoding/json"
@@ -22,6 +23,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check for user in DB and generate a session token
+	// actionspkg.GetUserInfo(models.UserOrGroupParams{PK: user.UserName})
+
 	if user.UserName == "ashik" && user.Password == "123456" {
 		tokenString, err := utils.GenerateToken(user.UserName)
 		if err != nil {
@@ -45,8 +48,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.UserSignupCredentials
 
+	hashedPwd, err := utils.HashText(user.Password)
+	if err != nil {
+		log.Println("error in hashing password", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	// Decode the request body
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Error : Bad Request"))
@@ -55,6 +65,19 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// store the user on database
 	// -------- Write the DB logic here ---------- //
+	err = actionspkg.AddNewUserOrGroup(models.User{
+		UserId:      utils.GenerateUserID(),
+		UserName:    user.UserName,
+		Password:    hashedPwd,
+		EmailID:     user.Email,
+		FriendsList: []string{},
+		GroupList:   []string{},
+	})
+	if err != nil {
+		log.Println("failed to create user in DB: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// Generate session token for the user
 	token, err := utils.GenerateToken(user.UserName)

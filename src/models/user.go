@@ -4,6 +4,7 @@ package models
 // need to add chat history to "User" OR "Group" struct
 type User struct {
 	UserId      string   `json:"userId" dynamodbav:"ID"`
+	EmailID     string   `json:"emailId" dynamodbav:"EmailID"`
 	UserName    string   `json:"userName" dynamodbav:"UserName"`
 	Password    string   `json:"password" dynamodbav:"Password"`
 	FriendsList []string `json:"friendsList" dynamodbav:"FriendsList,stringset"`

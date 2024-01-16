@@ -1,7 +1,7 @@
 package testing
 
 import (
-	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	"fmt"
 	"log"
@@ -11,17 +11,18 @@ import (
 
 func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 	// Init
-	subpkg.InitUserAndGroupActions(db_client, tableName)
+	actionspkg.InitUserAndGroupActions(db_client, tableName)
 
 	// Test
 	uid1 := "uid1"
 	gid1 := "gid1"
 
 	// 1. add new user
-	err := subpkg.AddNewUserOrGroup(models.User{
+	err := actionspkg.AddNewUserOrGroup(models.User{
 		UserId:      uid1,
 		UserName:    "user1",
 		Password:    "pwd",
+		EmailID:     "user1@gmail.com",
 		FriendsList: []string{"uid2", "uid3", "uid4"},
 		GroupList:   []string{"gid1", "gid2"},
 	})
@@ -31,10 +32,11 @@ func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 		log.Printf("Successfully inserted new user: %s\n", uid1)
 	}
 
-	err = subpkg.AddNewUserOrGroup(models.User{
+	err = actionspkg.AddNewUserOrGroup(models.User{
 		UserId:      "uid2",
 		UserName:    "user2",
 		Password:    "pwd",
+		EmailID:     "user2@gmail.com",
 		FriendsList: []string{"uid1", "uid3", "uid4"},
 		GroupList:   []string{"gid1", "gid2"},
 	})
@@ -45,7 +47,7 @@ func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 2. add new group
-	err = subpkg.AddNewUserOrGroup(models.Group{
+	err = actionspkg.AddNewUserOrGroup(models.Group{
 		GroupId:   gid1,
 		GroupName: "group1",
 		UserList:  []string{"uid1", "uid2", "uid3", "uid4"},
@@ -57,7 +59,7 @@ func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 3. get User Info
-	userInfo, err := subpkg.GetUserInfo(models.UserOrGroupParams{
+	userInfo, err := actionspkg.GetUserInfo(models.UserOrGroupParams{
 		PK: uid1,
 	})
 	if err != nil {
@@ -68,7 +70,7 @@ func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 4. get Group Info
-	groupInfo, err := subpkg.GetGroupInfo(models.UserOrGroupParams{
+	groupInfo, err := actionspkg.GetGroupInfo(models.UserOrGroupParams{
 		PK: gid1,
 	})
 	if err != nil {
@@ -79,7 +81,7 @@ func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 3. Update User Info
-	updatedInfo, err := subpkg.UpdateUserOrGroupInfo(models.UserOrGroupParams{PK: uid1}, models.User{
+	updatedInfo, err := actionspkg.UpdateUserOrGroupInfo(models.UserOrGroupParams{PK: uid1}, models.User{
 		Password:    "pwd2",
 		FriendsList: []string{"uid2", "uid3", "uid5"},
 	})
@@ -91,7 +93,7 @@ func TestUserAndGroupInfo(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 4. Delete User/Group Info
-	deletedInfo, err := subpkg.DeleteUserOrGroup(models.UserOrGroupParams{PK: uid1})
+	deletedInfo, err := actionspkg.DeleteUserOrGroup(models.UserOrGroupParams{PK: uid1})
 	if err != nil {
 		log.Println(err)
 	} else {

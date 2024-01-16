@@ -1,7 +1,7 @@
 package testing
 
 import (
-	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	"fmt"
 	"log"
@@ -12,14 +12,14 @@ import (
 
 func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	// Init
-	subpkg.InitChatHistory(db_client, tableName)
+	actionspkg.InitChatHistory(db_client, tableName)
 
 	// 1. add new user chat
 	uid1 := "uid1"
 	uid2 := fmt.Sprintf("%s-%d", string("uid2"), time.Now().UnixMicro())
 	gid1 := "gid1"
 
-	err := subpkg.AddNewChat(models.ChatHistory{
+	err := actionspkg.AddNewChat(models.ChatHistory{
 		PK:      uid1,
 		SK:      uid2,
 		MID:     "mID1",
@@ -34,7 +34,7 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// add new group chat
-	err = subpkg.AddNewChat(models.ChatHistory{
+	err = actionspkg.AddNewChat(models.ChatHistory{
 		PK:      gid1,
 		SK:      uid2,
 		MID:     "mID1",
@@ -48,7 +48,7 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 2. load chat history
-	chatHistory, err := subpkg.LoadChatHistory(models.ChatParams{
+	chatHistory, err := actionspkg.LoadChatHistory(models.ChatParams{
 		PK: uid1,
 		// SK: uid2,
 	})
@@ -64,7 +64,7 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 3. Update an existing chat text
-	updatedHistory, err := subpkg.UpdateChat(models.ChatParams{PK: uid1, SK: uid2}, models.ChatHistory{
+	updatedHistory, err := actionspkg.UpdateChat(models.ChatParams{PK: uid1, SK: uid2}, models.ChatHistory{
 		Content: "hello, user, how are you ? (modified)",
 	})
 	if err != nil {
@@ -74,7 +74,7 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// 4. Delete a particular chat
-	err = subpkg.DeleteSingleChat(models.ChatParams{
+	err = actionspkg.DeleteSingleChat(models.ChatParams{
 		PK: uid1,
 		SK: uid2,
 	})
@@ -86,7 +86,7 @@ func TestChatHistory(db_client *dynamodb.Client, tableName string) {
 	}
 
 	// // 5. delete user's group chat
-	// err = subpkg.DeleteUserGroupChat(models.ChatParams{
+	// err = actionspkg.DeleteUserGroupChat(models.ChatParams{
 	// 	PK: "uid2",
 	// })
 	// if err != nil {

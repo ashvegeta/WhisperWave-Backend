@@ -1,21 +1,21 @@
 package main
 
 import (
-	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	test "WhisperWave-BackEnd/src/DB/testing"
 	"fmt"
 )
 
 func main() {
 	// load AWS credentials config
-	db_client := subpkg.LoadDefaultConfig()
+	db_client := actionspkg.LoadDefaultConfig()
 
 	// Initialize all the tables in DDB
-	subpkg.InitializeTables(db_client)
+	actionspkg.InitializeTables(db_client)
 
-	subpkg.InitChatHistory(db_client, "ChatHistory")
-	subpkg.InitUserAndGroupActions(db_client, "UserAndGroupInfo")
-	subpkg.InitUserServerMap(db_client, "UserServerMap")
+	actionspkg.InitChatHistory(db_client, "ChatHistory")
+	actionspkg.InitUserAndGroupActions(db_client, "UserAndGroupInfo")
+	actionspkg.InitUserServerMap(db_client, "UserServerMap")
 
 	// Test tables
 	fmt.Println("\n1. Testing \"UserServerMap\" Table .......")

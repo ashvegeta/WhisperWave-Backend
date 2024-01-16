@@ -10,5 +10,7 @@ import (
 )
 
 func UserRouter(router *mux.Router, srv *server.Server) {
+	router.HandleFunc("/getuserinfo", handlers.GetUserInfoHandler).Methods("POST")
+	router.HandleFunc("/loadchat", handlers.LoadChatHistoryHandler).Methods("POST")
 	router.Handle("/ws", middleware.WithServer(http.HandlerFunc(handlers.SingleUserChatHandler), srv))
 }

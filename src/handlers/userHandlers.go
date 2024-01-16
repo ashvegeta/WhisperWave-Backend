@@ -2,14 +2,17 @@ package handlers
 
 import (
 	server "WhisperWave-BackEnd/server"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	registry "WhisperWave-BackEnd/src/serviceRegistry"
 	"WhisperWave-BackEnd/src/utils"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -32,9 +35,67 @@ func CancelFriendRequestHandler() {
 
 }
 
-// load  chat user
-func LoadChatHistoryHandler(w http.ResponseWriter, r *http.Request) {
+// load user info
+func GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.Header.Get("X-User-ID")
+	if userId == "" {
+		log.Println("User ID not found in headers. Closing connection.")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
+	userInfo, err := actionspkg.GetUserInfo(models.UserOrGroupParams{PK: userId})
+	if err != nil {
+		log.Println("error fetching user info : ", err)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("user not found"))
+		return
+	}
+
+	json.NewEncoder(w).Encode(userInfo)
+}
+
+// load  chat for a user/group
+func LoadChatHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	// ID1 - userid or groupid (PK in ddb table)
+	// ID2 - the SK in the ddb table (i.e the userid of the person initiating conversation in group, or the recepient in a private chat)
+	Id1 := r.Header.Get("ID1")
+	Id2 := r.Header.Get("ID2")
+
+	if Id1 == "" {
+		log.Println("intended ID not found in header. Closing connection.")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// fetch chat history for private (uid, uid-ts) chat
+	var messages []models.Message
+	chatParams := models.ChatParams{PK: Id1}
+	if Id2 != "" {
+		chatParams.SK = Id2
+	}
+
+	chatHistory, err := actionspkg.LoadChatHistory(chatParams)
+	if err != nil {
+		log.Println("error loading chat history : ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	for _, chat := range chatHistory {
+		SK := strings.Split(chat.SK, "-")
+
+		messages = append(messages, models.Message{
+			SenderId:    chat.PK,
+			MessageId:   chat.MID,
+			ReceiverIds: []string{SK[0]},
+			MessageType: chat.MType,
+			Content:     chat.Content,
+			TimeStamp:   SK[1],
+		})
+	}
+
+	json.NewEncoder(w).Encode(messages)
 }
 
 // you can use channels
@@ -86,13 +147,6 @@ func SingleUserChatHandler(w http.ResponseWriter, r *http.Request) {
 		Server.Mu.Unlock()
 	} else {
 		log.Printf("\nUser %s is already connected to the chat server", userId)
-	}
-
-	// load chat history
-	chatHistory := Server.LoadChatHistory(userId)
-
-	for _, chat := range chatHistory {
-		conn.WriteJSON(chat)
 	}
 
 	// read loop

@@ -1,7 +1,7 @@
 package serviceregistry
 
 import (
-	subpkg "WhisperWave-BackEnd/src/DB/actionspkg"
+	actionspkg "WhisperWave-BackEnd/src/DB/actionspkg"
 	"WhisperWave-BackEnd/src/models"
 	"errors"
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 // users
 func GetServerForUser(userId string) (any, error) {
-	srvInfo, err := subpkg.GetServerMap(userId)
+	srvInfo, err := actionspkg.GetServerMap(userId)
 
 	if len(srvInfo) == 0 {
 		msg := fmt.Sprintf("\nuser %s does not exist in user registry", userId)
@@ -22,7 +22,7 @@ func GetServerForUser(userId string) (any, error) {
 }
 
 func SetServerForUser(userId string, srv any) {
-	err := subpkg.PutServerMap(models.UserServerMap{
+	err := actionspkg.PutServerMap(models.UserServerMap{
 		UserID:     userId,
 		ServerInfo: srv.(models.ServerInfo),
 	})

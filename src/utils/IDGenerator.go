@@ -7,21 +7,47 @@ import (
 )
 
 var (
-	counterMu sync.Mutex
-	counter   uint64
+	MIDcounterMu sync.Mutex
+	MIDcounter   int64
+	UIDcounterMu sync.Mutex
+	UIDcounter   int64
+	GIDcounterMu sync.Mutex
+	GIDcounter   int64
 )
 
 func GenerateMessageID(requesterID string) string {
 	// increment counter
-	counterMu.Lock()
-	counter++
-	counterMu.Unlock()
+	MIDcounterMu.Lock()
+	MIDcounter++
+	MIDcounterMu.Unlock()
 
 	// add timestamp
-	timestamp := time.Now().UnixMilli()
+	timestamp := time.Now().UnixMicro()
 
-	// add UID
-	ID := fmt.Sprintf("%s-%d-%d", requesterID, timestamp, counter)
+	// add MID
+	return fmt.Sprintf("M-%s-%d-%d", requesterID, timestamp, UIDcounter)
+}
 
-	return ID
+func GenerateUserID() string {
+	// increment counter
+	UIDcounterMu.Lock()
+	UIDcounter++
+	UIDcounterMu.Unlock()
+
+	// add timestamp
+	timestamp := time.Now().UnixMicro()
+
+	return fmt.Sprintf("U-%d-%d", timestamp, UIDcounter)
+}
+
+func GenerateGroupID() string {
+	// increment counter
+	GIDcounterMu.Lock()
+	GIDcounter++
+	GIDcounterMu.Unlock()
+
+	// add timestamp
+	timestamp := time.Now().UnixMicro()
+
+	return fmt.Sprintf("G-%d-%d", timestamp, GIDcounter)
 }
