@@ -23,10 +23,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check for user in DB and generate a session token
-	// actionspkg.GetUserInfo(models.UserOrGroupParams{PK: user.UserName})
+	userInfo, err := actionspkg.GetUserInfo(models.UserOrGroupParams{PK: user.UserId})
+	if err != nil {
+		log.Println("error in fetching user: ", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	if user.UserName == "ashik" && user.Password == "123456" {
-		tokenString, err := utils.GenerateToken(user.UserName)
+	// check if user credentials match the record DB
+	if userInfo.UserId == user.UserId && utils.CompareTextAndHash(user.Password, userInfo.Password) {
+		tokenString, err := utils.GenerateToken(user.UserId)
 		if err != nil {
 			log.Println("Error Generating JWT Token: ", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -48,6 +54,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.UserSignupCredentials
 
+	// Decode the request body
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Error : Bad Request"))
+		return
+	}
+
+	// hash the user password
 	hashedPwd, err := utils.HashText(user.Password)
 	if err != nil {
 		log.Println("error in hashing password", err)
@@ -55,18 +70,23 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode the request body
-	err = json.NewDecoder(r.Body).Decode(&user)
+	// store the user on database
+	// -------- Write the DB logic here ---------- //
+	checkUser, err := actionspkg.GetUserInfo(models.UserOrGroupParams{PK: user.UserId})
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Error : Bad Request"))
+		log.Println("error in checking whether new user already exists")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// store the user on database
-	// -------- Write the DB logic here ---------- //
+	if checkUser.UserId == user.UserId {
+		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte("User Already Exists"))
+		return
+	}
+
 	err = actionspkg.AddNewUserOrGroup(models.User{
-		UserId:      utils.GenerateUserID(),
+		UserId:      user.UserId,
 		UserName:    user.UserName,
 		Password:    hashedPwd,
 		EmailID:     user.Email,

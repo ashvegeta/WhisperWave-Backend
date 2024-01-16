@@ -29,13 +29,14 @@ type Message struct {
 
 // only use this to verify credentials, dont store directly
 type UserLoginCredentials struct {
-	UserName string `json:"username"`
+	UserId   string `json:"userId"`
 	Password string `json:"password"`
 }
 
 // only use this to verify credentials, dont store directly
 type UserSignupCredentials struct {
-	UserName string `json:"username"`
+	UserId   string `json:"userId"`
 	Password string `json:"password"`
+	UserName string `json:"username"`
 	Email    string `json:"email"`
 }
