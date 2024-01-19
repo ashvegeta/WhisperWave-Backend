@@ -3,7 +3,7 @@
 
 <h2>About</h2>
 
-WhisperWave is an application that emerged as a hobby project to understand and simulate real-time chat applications. To understand in detail, the project structure and data flow in the design and the thinking behind the database design, click on the medium 
+WhisperWave is an application that emerged as a hobby project to understand and simulate real-time chat applications. To understand in detail, the project structure, data flow and the thinking process behind the database design, click on the medium 
 [post](https://medium.com/@1ms18cs030/my-experience-in-building-a-chat-application-in-golang-f0b815d7b7ae).
 
 <h2>System Design</h2>
