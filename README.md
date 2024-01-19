@@ -43,6 +43,10 @@ WhisperWave is an application that emerged as a hobby project to understand and 
      ```shell
    docker run -d --hostname [your-hostname] --name [docker-server-name] -p [service-port]:5672 -p [management-port]:15672 rabbitmq:3.12-management
      ```
+9. Confgure AWS Credentials using AWS CLI:
+    ```
+    aws configure
+    ```
 
 9. Enter the root directory of the project where the MakeFile is present and type:
     ```
