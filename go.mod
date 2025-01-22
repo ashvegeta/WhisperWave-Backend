@@ -16,7 +16,7 @@ require (
 	github.com/aws/smithy-go v1.19.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/rabbitmq/amqp091-go v1.9.0
-	golang.org/x/crypto v0.17.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
@@ -33,5 +33,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.6 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 )
